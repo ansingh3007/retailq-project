@@ -2,7 +2,9 @@
 
 A multi-source retail analytics lakehouse on Databricks — integrating Salesforce (accounts, opportunities), Postgres (product catalog, inventory), and blob transaction files into a Bronze/Silver/Gold medallion architecture, with a Unity Catalog Metric View semantic layer and a Databricks SQL dashboard on top.
 
-📊 [View the dashboard](dashboard/Retail_Sales_Analysis_Dashboard.pdf) · [View the visualization showcase](dashboard/Retail_Dataset_Visualization.pdf)
+![Retail Sales Analysis Dashboard](dashboard/dashboard_overview.png)
+
+📄 Full PDFs: [Sales Analysis Dashboard](dashboard/Retail_Sales_Analysis_Dashboard.pdf) · [Visualization Showcase](dashboard/Retail_Dataset_Visualization.pdf)
 
 ## Architecture
 
@@ -74,6 +76,7 @@ Note: this is a practice/skill-building project, and the underlying source data 
 ```
 retailq-project/
 ├── dashboard/
+│   ├── dashboard_overview.png         # Embedded in this README
 │   ├── Retail_Sales_Analysis_Dashboard.pdf
 │   └── Retail_Dataset_Visualization.pdf
 ├── bronze/
