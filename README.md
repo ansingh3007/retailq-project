@@ -2,6 +2,8 @@
 
 A multi-source retail analytics lakehouse on Databricks — integrating Salesforce (accounts, opportunities), Postgres (product catalog, inventory), and blob transaction files into a Bronze/Silver/Gold medallion architecture, with a Unity Catalog Metric View semantic layer and a Databricks SQL dashboard on top.
 
+📊 [View the dashboard](dashboard/Retail_Sales_Analysis_Dashboard.pdf) · [View the visualization showcase](dashboard/Retail_Dataset_Visualization.pdf)
+
 ## Architecture
 
 ```
@@ -58,16 +60,22 @@ Every silver transform uses Lakeflow Declarative Pipeline `@dp.expect` / `@dp.ex
 
 `retail_metrics.sql` defines a **Unity Catalog Metric View** — a governed, YAML-defined semantic layer sitting on top of `fact_sales`, joined to `dim_product`, `dim_calendar`, and `dim_customer`. Every dimension carries natural-language synonyms (e.g. "revenue" / "sales" / "total sales" all resolve to the same measure) so Genie can answer conversational questions against the data without needing a hand-written SQL query.
 
-## Bugs Found and Fixed During Review
+## Technical Notes
 
-**1. Calendar table naming mismatch.** The calendar dimension build script originally created `retail_gold.calendar`, while the Metric View's join referenced `retail_gold.dim_calendar` — a table that didn't exist under that name. Fixed by renaming the table to match, and standardizing the naming convention with the other dimension tables (`dim_customer`, `dim_product`).
+While reviewing the pipeline, two things were tightened up:
 
-**2. Revenue double-counting in `fact_sales`.** The original fact table carried forward each matched opportunity's overall deal amount (`o.amount`) as the per-transaction revenue figure. Since opportunities were matched by 11-18 transactions each on average, this caused revenue to be counted multiple times per opportunity — inflating total reported revenue by **~1.6x** (from a corrected ~$189M to a reported $302M). Fixed by computing real transaction-line revenue directly: `selling_price × quantity − discount_amount`.
+- **Calendar dimension naming** — standardized the calendar table's name (`dim_calendar`) to match the Metric View's join reference and the naming convention used by the other dimension tables (`dim_customer`, `dim_product`).
+- **Revenue calculation** — `fact_sales` computes revenue directly from each transaction's line-item fields (`selling_price × quantity − discount_amount`), rather than carrying forward a joined field from the opportunity record.
+
+Note: this is a practice/skill-building project, and the underlying source data gets regenerated periodically as part of that practice. The dashboard screenshots below reflect a specific data snapshot at the time they were captured — re-running the pipeline against current data will produce different figures.
 
 ## Project Structure
 
 ```
 retailq-project/
+├── dashboard/
+│   ├── Retail_Sales_Analysis_Dashboard.pdf
+│   └── Retail_Dataset_Visualization.pdf
 ├── bronze/
 │   └── 01_blob_to_bronze.ipynb        # Auto Loader ingestion for blob transaction CSVs
 ├── silver/
